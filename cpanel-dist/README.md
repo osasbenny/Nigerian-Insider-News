@@ -13,7 +13,7 @@ cpanel-dist/
 │   ├── index.html          # Main HTML file
 │   ├── assets/             # CSS, JavaScript bundles
 │   └── __manus__/          # Manus runtime files
-├── .htaccess               # Apache reverse proxy configuration
+├── .htaccess               # Apache reverse proxy + SPA routing
 ├── SETUP.md                # Detailed setup instructions
 ├── ENV_TEMPLATE.txt        # Environment variables template
 ├── ecosystem.config.js     # PM2 process manager config
@@ -89,6 +89,7 @@ See `ENV_TEMPLATE.txt` for complete list.
 
 ### Apache Configuration (.htaccess)
 The `.htaccess` file includes:
+- **SPA Routing** - Prevents 404 errors on page reload
 - Reverse proxy to Node.js application
 - Gzip compression
 - Browser caching headers
@@ -97,8 +98,8 @@ The `.htaccess` file includes:
 
 ## 📊 File Sizes
 - Total package: ~1.6 MB (uncompressed)
-- Compressed (tar.gz): ~427 KB
-- Compressed (zip): ~430 KB
+- Compressed (tar.gz): ~428 KB
+- Compressed (zip): ~432 KB
 
 ## 🔐 Security
 
@@ -147,6 +148,11 @@ npm install
 - Verify `.htaccess` is in place
 - Check web server error logs
 
+### 404 Errors on Page Reload
+- Verify `.htaccess` is in root directory
+- Check Apache has `mod_rewrite` enabled
+- Verify `AllowOverride All` in Apache config
+
 ## 📚 Additional Resources
 
 - **Full Setup Guide:** See `SETUP.md`
@@ -184,4 +190,5 @@ For issues:
 
 **Version:** 1.0.0
 **Last Updated:** April 15, 2026
-**Built with:** React 19, Express 4, Node.js 22
+**Built with:** React 19, Express 4, Node.js 22, TypeScript
+**Features:** SPA Routing, Full-Stack, Admin Dashboard, Mobile Responsive

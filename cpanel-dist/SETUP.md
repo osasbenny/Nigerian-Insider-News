@@ -78,16 +78,13 @@ npm start
 ## Web Server Setup
 
 ### Apache (.htaccess)
-Create a `.htaccess` file in your `public_html` root:
-
-```apache
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ http://localhost:3000/$1 [P,L]
-</IfModule>
-```
+The `.htaccess` file is already included and configured with:
+- SPA routing (prevents 404 on page reload)
+- Reverse proxy to Node.js
+- Gzip compression
+- Browser caching headers
+- Security headers
+- HTTPS redirect
 
 ### Nginx (if available)
 Configure your Nginx server block:
@@ -118,7 +115,7 @@ server {
 npm install -g pm2
 
 # Start application
-pm2 start index.js --name "nigerian-insider-news"
+pm2 start ecosystem.config.js
 
 # Save PM2 configuration
 pm2 save
@@ -170,6 +167,24 @@ chmod 644 /home/username/public_html/nigerian-insider-news/package.json
 
 ---
 
+## SPA Routing (Single Page Application)
+
+The application is configured with SPA routing to prevent 404 errors on page reload:
+
+- All non-file/non-directory requests are served `index.html`
+- React Router handles client-side routing
+- Page reloads on any route will work correctly
+- API routes (`/api/*`) are handled separately
+
+This is configured in `.htaccess` with the rewrite rule:
+```apache
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.html [L]
+```
+
+---
+
 ## Troubleshooting
 
 ### Port Already in Use
@@ -207,6 +222,13 @@ npm install
 - Verify file permissions (644 for files)
 - Check web server configuration
 - Ensure asset paths are correct
+
+### 404 Errors on Page Reload
+This should not happen with SPA routing configured. If it does:
+- Verify `.htaccess` is in the root directory
+- Check Apache has `mod_rewrite` enabled
+- Verify `AllowOverride All` is set in Apache config
+- Check error logs: `tail -f /var/log/apache2/error.log`
 
 ---
 
@@ -260,7 +282,7 @@ npm audit
 1. **Enable Gzip Compression** in cPanel
 2. **Use CloudFlare** for CDN and caching
 3. **Optimize Images** before uploading
-4. **Enable Browser Caching** in .htaccess
+4. **Enable Browser Caching** in .htaccess (already configured)
 5. **Monitor Resource Usage** in cPanel
 
 ---
@@ -275,6 +297,7 @@ npm audit
 - [ ] PM2 or similar process manager running
 - [ ] Firewall configured
 - [ ] Regular security updates applied
+- [ ] .htaccess protecting sensitive files
 
 ---
 
