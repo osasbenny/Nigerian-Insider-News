@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -25,4 +25,30 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Articles table for Nigerian Insider News
+ * Stores all news articles with metadata for categorization, publishing, and display
+ */
+export const articles = mysqlTable("articles", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  content: text("content").notNull(),
+  excerpt: text("excerpt").notNull(),
+  category: mysqlEnum("category", [
+    "politics",
+    "business",
+    "sports",
+    "entertainment",
+    "technology",
+    "world",
+  ]).notNull(),
+  coverImageUrl: text("coverImageUrl"),
+  authorName: varchar("authorName", { length: 255 }).notNull().default("Nigerian Insider News"),
+  published: boolean("published").notNull().default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Article = typeof articles.$inferSelect;
+export type InsertArticle = typeof articles.$inferInsert;

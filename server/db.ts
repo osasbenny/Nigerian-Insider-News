@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, desc, like, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, articles, Article, InsertArticle } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,117 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Article queries
+
+export async function getPublishedArticles(limit: number = 20, offset: number = 0) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(articles)
+    .where(eq(articles.published, true))
+    .orderBy(desc(articles.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function getArticleBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db
+    .select()
+    .from(articles)
+    .where(and(eq(articles.slug, slug), eq(articles.published, true)))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getArticlesByCategory(category: string, limit: number = 20, offset: number = 0) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(articles)
+    .where(and(eq(articles.category, category as any), eq(articles.published, true)))
+    .orderBy(desc(articles.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function searchArticles(query: string, limit: number = 20, offset: number = 0) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(articles)
+    .where(and(
+      eq(articles.published, true),
+      like(articles.title, `%${query}%`)
+    ))
+    .orderBy(desc(articles.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function getRelatedArticles(category: string, currentSlug: string, limit: number = 3) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(articles)
+    .where(and(
+      eq(articles.category, category as any),
+      eq(articles.published, true)
+    ))
+    .orderBy(desc(articles.createdAt))
+    .limit(limit + 1)
+    .then(results => results.filter(a => a.slug !== currentSlug).slice(0, limit));
+}
+
+export async function createArticle(article: InsertArticle) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(articles).values(article);
+  return result;
+}
+
+export async function updateArticle(id: number, updates: Partial<InsertArticle>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.update(articles).set(updates).where(eq(articles.id, id));
+}
+
+export async function deleteArticle(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.delete(articles).where(eq(articles.id, id));
+}
+
+export async function getArticleById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(articles).where(eq(articles.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllArticles(limit: number = 100, offset: number = 0) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(articles)
+    .orderBy(desc(articles.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
