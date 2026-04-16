@@ -1,65 +1,59 @@
 # Enable mod_rewrite
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /
-
-  # Compress output
-  <IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
-  </IfModule>
-
-  # Cache static assets for 1 year
-  <FilesMatch "\.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$">
-    Header set Cache-Control "max-age=31536000, public"
-  </FilesMatch>
-
-  # Cache HTML for 1 hour
-  <FilesMatch "\.html$">
-    Header set Cache-Control "max-age=3600, public"
-  </FilesMatch>
-
-  # Disable caching for API routes
-  <FilesMatch "^/api">
-    Header set Cache-Control "no-cache, no-store, must-revalidate"
-  </FilesMatch>
-
-  # Security headers
-  Header set X-Frame-Options "SAMEORIGIN"
-  Header set X-Content-Type-Options "nosniff"
-  Header set X-XSS-Protection "1; mode=block"
-  Header set Referrer-Policy "strict-origin-when-cross-origin"
-
+  
+  # Remove .html extension from URLs
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)\.html$ /$1 [L,R=301]
+  
   # SPA Routing - Serve index.html for all non-file/non-directory requests
-  # This prevents 404 errors on page reload for client-side routes
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ index.html [L]
-
-  # Proxy to Node.js application (if using reverse proxy)
-  ProxyPreserveHost On
-  ProxyRequests Off
-
-  # Route all requests to Node.js server
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ http://localhost:3000/$1 [P,L]
-
-  # Handle WebSocket connections
-  RewriteCond %{HTTP:Upgrade} websocket [NC]
-  RewriteCond %{HTTP:Connection} upgrade [NC]
-  RewriteRule ^/?(.*) "ws://localhost:3000/$1" [P,L]
+  RewriteRule ^ index.html [QSA,L]
 </IfModule>
 
-# Enable HTTPS redirect
+# Enable gzip compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# Set cache headers for static assets
+<IfModule mod_expires.c>
+  ExpiresActive On
+  
+  # Cache images for 1 year
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  
+  # Cache CSS and JS for 1 month
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType text/javascript "access plus 1 month"
+  
+  # Cache fonts for 1 year
+  ExpiresByType font/ttf "access plus 1 year"
+  ExpiresByType font/otf "access plus 1 year"
+  ExpiresByType font/woff "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  
+  # Don't cache HTML
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set X-XSS-Protection "1; mode=block"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Force HTTPS
 <IfModule mod_rewrite.c>
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
-
-# Disable directory listing
-Options -Indexes
-
-# Prevent access to sensitive files
-<FilesMatch "^\.env|\.git|package\.json|package-lock\.json|pnpm-lock\.yaml">
-  Deny from all
-</FilesMatch>

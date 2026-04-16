@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
-import { Link } from "wouter";
+import { useState, useEffect } from "react";
 import { AlertCircle } from "lucide-react";
-import { trpc } from "@/lib/trpc";
+import type { Article } from "../../../drizzle/schema";
 
-export default function BreakingNewsTicker() {
-  const { data: articles } = trpc.articles.list.useQuery({ limit: 10 });
-  const [displayArticles, setDisplayArticles] = useState<typeof articles>([]);
+interface BreakingNewsTickerProps {
+  articles: Article[];
+}
+
+export default function BreakingNewsTicker({ articles }: BreakingNewsTickerProps) {
+  const [displayArticles, setDisplayArticles] = useState<Article[]>([]);
 
   useEffect(() => {
     if (articles && articles.length > 0) {
@@ -25,11 +27,9 @@ export default function BreakingNewsTicker() {
         </div>
         <div className="ticker-content">
           {displayArticles && displayArticles.length > 0 && displayArticles.map((article, idx) => (
-            <Link key={`${article.id}-${idx}`} href={`/article/${article.slug}`}>
-              <a className="ticker-item hover:text-secondary transition-colors">
-                {article.title}
-              </a>
-            </Link>
+            <a key={`${article.id}-${idx}`} href="#" className="ticker-item hover:text-secondary transition-colors">
+              {article.title}
+            </a>
           ))}
         </div>
       </div>

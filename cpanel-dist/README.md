@@ -1,194 +1,94 @@
-# Nigerian Insider News - cPanel Distribution Build
+# Nigerian Insider News - Static cPanel Deployment
 
-This is a production-ready distribution package for deploying Nigerian Insider News to cPanel hosting.
+This is a **static HTML/CSS/JavaScript** version of Nigerian Insider News optimized for cPanel hosting without Node.js requirements.
 
-## 📦 Package Contents
+## Features
+
+✅ **Fully Static** - No backend server required  
+✅ **Mobile Responsive** - Works on all devices  
+✅ **SPA Routing** - All links work without 404 errors  
+✅ **Fast Loading** - Gzip compression and caching enabled  
+✅ **SEO Optimized** - Proper meta tags and structure  
+✅ **Security Headers** - Built-in security configuration  
+
+## Quick Start (5 Minutes)
+
+### Step 1: Upload Files
+1. Extract the `cpanel-dist` folder contents
+2. Upload all files to your cPanel `public_html` folder via FTP/SFTP or File Manager
+3. Make sure `.htaccess` is uploaded (hidden file - enable "Show Hidden Files" in cPanel)
+
+### Step 2: Verify Installation
+1. Visit your domain: `https://yourdomain.com`
+2. You should see the Nigerian Insider News homepage
+3. Click on any link - all navigation works without errors
+
+### Step 3: Customize (Optional)
+- Edit `index.html` to change site title, meta tags, or content
+- Modify `assets/` folder for custom styling
+- Add your own images/media to the `assets/` folder
+
+## File Structure
 
 ```
 cpanel-dist/
-├── index.js                 # Node.js backend server (compiled)
-├── package.json            # Project dependencies
-├── pnpm-lock.yaml          # Dependency lock file
-├── public/                 # Frontend static files
-│   ├── index.html          # Main HTML file
-│   ├── assets/             # CSS, JavaScript bundles
-│   └── __manus__/          # Manus runtime files
-├── .htaccess               # Apache reverse proxy + SPA routing
-├── SETUP.md                # Detailed setup instructions
-├── ENV_TEMPLATE.txt        # Environment variables template
-├── ecosystem.config.js     # PM2 process manager config
-└── README.md               # This file
+├── index.html              # Main page (all routes served here)
+├── .htaccess              # Apache configuration (SPA routing)
+├── assets/
+│   ├── index-*.css        # Compiled CSS
+│   ├── index-*.js         # Compiled JavaScript
+│   └── images/            # Images and media
+└── __manus__/             # Manus configuration
 ```
 
-## ⚡ Quick Start (5 Minutes)
+## How It Works
 
-### 1. Extract Files
-```bash
-# Using tar
-tar -xzf nigerian-insider-news-cpanel.tar.gz -C ~/public_html
+- **SPA Routing**: The `.htaccess` file redirects all non-file requests to `index.html`
+- **Client-Side Navigation**: React handles all page routing in the browser
+- **No Backend**: Everything runs on the frontend - no database or server needed
+- **Caching**: Static assets are cached by browsers for faster loading
 
-# Or using zip
-unzip nigerian-insider-news-cpanel.zip -d ~/public_html
-```
+## Troubleshooting
 
-### 2. Install Dependencies
-```bash
-cd ~/public_html/cpanel-dist
-npm install
-```
+### "404 Not Found" Error
+- **Solution**: Ensure `.htaccess` is uploaded and `mod_rewrite` is enabled in cPanel
+- Check: cPanel → Apache Modules → Ensure `mod_rewrite` is enabled
 
-### 3. Configure Environment
-```bash
-cp ENV_TEMPLATE.txt .env
-nano .env  # Edit with your database credentials and API keys
-```
+### Styles not loading
+- **Solution**: Clear browser cache (Ctrl+Shift+Delete)
+- Check file permissions: All files should be readable (644 for files, 755 for directories)
 
-### 4. Setup Database
-```bash
-npm run db:push
-```
+### Links not working
+- **Solution**: Verify `.htaccess` is in the root folder
+- Check: The file should be named exactly `.htaccess` (with the dot)
 
-### 5. Start Application
-```bash
-npm start
-```
+### Blank page
+- **Solution**: Check browser console for errors (F12 → Console)
+- Verify `index.html` and `assets/` folder are uploaded
 
-Visit `http://localhost:3000` to verify it's running.
+## Performance Tips
 
-## 🚀 Deployment Methods
+1. **Enable Gzip**: Already configured in `.htaccess`
+2. **Browser Caching**: Already configured in `.htaccess`
+3. **CDN**: Consider using Cloudflare for additional caching
+4. **Minification**: Assets are already minified
 
-### Method 1: Using PM2 (Recommended)
-```bash
-npm install -g pm2
-pm2 start ecosystem.config.js
-pm2 save
-pm2 startup
-```
+## Security
 
-### Method 2: Using nohup
-```bash
-nohup npm start > app.log 2>&1 &
-```
+- ✅ HTTPS redirect configured
+- ✅ Security headers set
+- ✅ XSS protection enabled
+- ✅ Clickjacking protection enabled
 
-### Method 3: Using cPanel AutoStart
-1. Go to cPanel → **Application Manager**
-2. Create new Node.js application
-3. Point to your app directory
-4. Set startup file to `index.js`
+## Support
 
-## 🔧 Configuration
+For issues or questions:
+- Check the troubleshooting section above
+- Review `.htaccess` configuration
+- Verify file permissions
+- Check cPanel error logs
 
-### Environment Variables (.env)
-Required variables:
-- `DATABASE_URL` - MySQL connection string
-- `JWT_SECRET` - Random secret for authentication
-- `VITE_APP_ID` - Your Manus app ID
-- `OAUTH_SERVER_URL` - OAuth provider URL
+## Version
 
-See `ENV_TEMPLATE.txt` for complete list.
-
-### Apache Configuration (.htaccess)
-The `.htaccess` file includes:
-- **SPA Routing** - Prevents 404 errors on page reload
-- Reverse proxy to Node.js application
-- Gzip compression
-- Browser caching headers
-- Security headers
-- HTTPS redirect
-
-## 📊 File Sizes
-- Total package: ~1.6 MB (uncompressed)
-- Compressed (tar.gz): ~428 KB
-- Compressed (zip): ~432 KB
-
-## 🔐 Security
-
-Before deploying:
-- [ ] Generate strong JWT_SECRET
-- [ ] Set secure database password
-- [ ] Enable HTTPS/SSL certificate
-- [ ] Set proper file permissions (755 dirs, 644 files)
-- [ ] Keep dependencies updated
-- [ ] Regular backups configured
-
-## 📝 Database Setup
-
-### Create Database in cPanel
-1. Go to **MySQL Databases**
-2. Create database: `nigerian_insider_news`
-3. Create user with strong password
-4. Grant all privileges
-
-### Connection String
-```
-mysql://username:password@localhost:3306/nigerian_insider_news
-```
-
-## 🐛 Troubleshooting
-
-### Port Already in Use
-```bash
-lsof -i :3000
-kill -9 <PID>
-```
-
-### Database Connection Failed
-- Verify DATABASE_URL format
-- Check MySQL is running
-- Confirm user permissions
-
-### npm install Fails
-```bash
-npm cache clean --force
-npm install
-```
-
-### Static Files Not Loading
-- Check `public` folder permissions
-- Verify `.htaccess` is in place
-- Check web server error logs
-
-### 404 Errors on Page Reload
-- Verify `.htaccess` is in root directory
-- Check Apache has `mod_rewrite` enabled
-- Verify `AllowOverride All` in Apache config
-
-## 📚 Additional Resources
-
-- **Full Setup Guide:** See `SETUP.md`
-- **GitHub Repository:** https://github.com/osasbenny/Nigerian-Insider-News
-- **Designer:** https://instagram.com/osas.codes
-
-## 🆘 Support
-
-For issues:
-1. Check `SETUP.md` troubleshooting section
-2. Review cPanel error logs
-3. Check application logs: `pm2 logs nigerian-insider-news`
-4. Contact support via GitHub issues
-
-## 📋 Deployment Checklist
-
-- [ ] Files extracted to public_html
-- [ ] Dependencies installed
-- [ ] .env file created with credentials
-- [ ] Database created and migrated
-- [ ] Application started successfully
-- [ ] Accessible via domain/subdomain
-- [ ] SSL certificate installed
-- [ ] Backups configured
-
-## 🎯 Next Steps
-
-1. **Configure Custom Domain** - Point domain to your cPanel account
-2. **Enable SSL** - Use AutoSSL or install certificate
-3. **Setup Monitoring** - Configure error alerts
-4. **Schedule Backups** - Daily database and code backups
-5. **Monitor Performance** - Check resource usage in cPanel
-
----
-
-**Version:** 1.0.0
-**Last Updated:** April 15, 2026
-**Built with:** React 19, Express 4, Node.js 22, TypeScript
-**Features:** SPA Routing, Full-Stack, Admin Dashboard, Mobile Responsive
+Nigerian Insider News v1.0.0 - Static Edition
+Built with React, TypeScript, and Tailwind CSS

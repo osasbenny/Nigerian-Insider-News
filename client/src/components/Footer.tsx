@@ -1,4 +1,3 @@
-import { Link } from "wouter";
 import { Facebook, Twitter, Linkedin, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -40,34 +39,22 @@ export default function Footer() {
             <h4 className="font-bold mb-4">Categories</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/category/politics">
-                  <a className="hover:text-secondary transition-colors">Politics</a>
-                </Link>
+                <a href="#" className="hover:text-secondary transition-colors">Politics</a>
               </li>
               <li>
-                <Link href="/category/business">
-                  <a className="hover:text-secondary transition-colors">Business</a>
-                </Link>
+                <a href="#" className="hover:text-secondary transition-colors">Business</a>
               </li>
               <li>
-                <Link href="/category/sports">
-                  <a className="hover:text-secondary transition-colors">Sports</a>
-                </Link>
+                <a href="#" className="hover:text-secondary transition-colors">Sports</a>
               </li>
               <li>
-                <Link href="/category/entertainment">
-                  <a className="hover:text-secondary transition-colors">Entertainment</a>
-                </Link>
+                <a href="#" className="hover:text-secondary transition-colors">Entertainment</a>
               </li>
               <li>
-                <Link href="/category/technology">
-                  <a className="hover:text-secondary transition-colors">Technology</a>
-                </Link>
+                <a href="#" className="hover:text-secondary transition-colors">Technology</a>
               </li>
               <li>
-                <Link href="/category/world">
-                  <a className="hover:text-secondary transition-colors">World</a>
-                </Link>
+                <a href="#" className="hover:text-secondary transition-colors">World</a>
               </li>
             </ul>
           </div>
@@ -77,9 +64,7 @@ export default function Footer() {
             <h4 className="font-bold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/">
-                  <a className="hover:text-secondary transition-colors">Home</a>
-                </Link>
+                <a href="#" className="hover:text-secondary transition-colors">Home</a>
               </li>
               <li>
                 <a href="#" className="hover:text-secondary transition-colors">About Us</a>
